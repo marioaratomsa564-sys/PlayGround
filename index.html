@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#183a2c" />
+  <title>Little Roads — Farm & Forest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main id="game">
+    <canvas id="scene" aria-label="3D farm and forest driving game"></canvas>
+    <div class="vignette"></div>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Little Roads home"><span class="brand-mark">LR</span><span>LITTLE<br><b>ROADS</b></span></a>
+      <div class="chapter"><span class="eyebrow">A SUNNY DAY OUT</span><strong>Farm & Forest</strong></div>
+      <div class="top-right"><span class="weather"><span class="sun">☼</span> 24° <i>•</i> Sunny</span><button class="icon-btn" id="soundBtn" aria-label="Toggle sound">♫</button><button class="icon-btn menu-btn" id="mapBtn" aria-label="Open map">⌖</button></div>
+    </header>
+    <aside class="mission-card" id="missionCard">
+      <div class="card-head"><span class="quest-icon">✦</span><div><span class="eyebrow">TODAY'S ADVENTURE</span><h1>Make it road-ready</h1></div><button class="collapse" id="collapseBtn" aria-label="Minimize missions">⌃</button></div>
+      <p class="mission-intro">A little help goes a long way. Get the family cars back on the road!</p>
+      <div class="mission-list" id="missionList"></div>
+      <button class="journal-btn" id="journalBtn"><span>▤</span> Adventure journal <span class="arrow">↗</span></button>
+    </aside>
+    <div class="location-pill"><span class="pin">⌖</span><span id="locationName">YOUR FARM</span><span class="location-dot"></span></div>
+    <div class="vehicle-hud" id="vehicleHud"><span class="speed-icon">◉</span><strong id="speedValue">0</strong><small>KM/H</small><span class="hud-divider"></span><span id="vehicleName">ON FOOT</span></div>
+    <div class="toast" id="toast"></div>
+    <div class="interaction" id="interaction"><span class="keycap">E</span><span id="interactionText">Interact</span><span class="tap-hint">TAP</span></div>
+    <div class="bottom-hud"><div class="controls-hint"><span class="keycap">W A S D</span><span>Move</span><i></i><span class="keycap">E</span><span>Interact / enter</span><i></i><span class="keycap">SHIFT</span><span>Sprint</span></div><div class="progress-chip"><span class="sparkle">✦</span><span id="progressText">0 / 6 discoveries</span></div></div>
+    <div class="mobile-controls" id="mobileControls">
+      <div class="joystick" id="joystick"><div class="joy-knob" id="joyKnob"></div></div>
+      <div class="mobile-actions"><button id="driveBtn" class="action-btn drive-btn"><span>↗</span><small>DRIVE</small></button><button id="actionBtn" class="action-btn"><span>✦</span><small>ACT</small></button></div>
+    </div>
+    <div class="modal-backdrop" id="modalBackdrop">
+      <section class="modal" id="modal"><button class="modal-close" id="modalClose">×</button><div class="modal-content" id="modalContent"></div></section>
+    </div>
+    <div class="loading" id="loading"><div class="loading-logo">LR</div><span>Warming up the country roads…</span></div>
+  </main>
+  <script type="module" src="game.js"></script>
+</body>
+</html>
