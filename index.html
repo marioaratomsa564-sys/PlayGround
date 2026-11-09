@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#18251e">
+<title>SUMMER SHIFT — A little countryside car game</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap');
+:root{--cream:#f3e8cc;--ink:#17231b;--orange:#f0783c;--green:#a6c45d}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#9fc8c8;color:var(--cream);font-family:'DM Sans',sans-serif}canvas{display:block;width:100%;height:100%;outline:0}
+#game{position:fixed;inset:0}#hud{position:absolute;inset:0;pointer-events:none;display:none}
+.topbar{position:absolute;top:20px;left:22px;right:22px;display:flex;justify-content:space-between;align-items:flex-start}
+.brand{font:600 19px Oswald,sans-serif;letter-spacing:2px;text-shadow:0 2px 6px #15251b88}.brand small{display:block;font:10px 'DM Mono';letter-spacing:1.6px;color:#edc580;margin-top:3px}
+.objective{position:absolute;top:76px;left:22px;background:#17231be8;border:1px solid #ffffff27;padding:13px 17px;width:min(330px,calc(100vw - 44px));box-shadow:0 8px 26px #16201833;backdrop-filter:blur(8px)}.eyebrow{font:10px 'DM Mono';letter-spacing:1.5px;color:#f0783c;text-transform:uppercase}.objtitle{font-weight:700;font-size:15px;margin-top:5px}.objsub{font-size:12px;line-height:1.45;color:#d4d0bd;margin-top:4px}
+.status{background:#17231be8;border:1px solid #ffffff27;padding:10px 13px;min-width:145px;font:11px 'DM Mono';box-shadow:0 8px 26px #16201833}.statrow{display:flex;justify-content:space-between;gap:22px;margin:3px 0}.statrow span:last-child{color:#f0c77e}.fuelbar{height:3px;background:#485148;margin:7px 0 2px}.fuelbar i{display:block;height:100%;width:100%;background:#a6c45d;transition:width .25s}
+#prompt{position:absolute;left:50%;bottom:16%;transform:translateX(-50%);background:#17231bf0;padding:11px 17px;border:1px solid #ffffff38;font-size:13px;box-shadow:0 8px 25px #16201845;display:none;white-space:nowrap}kbd{font:11px 'DM Mono';border:1px solid #b1aa91;padding:3px 6px;margin-right:8px;color:#f4c679}
+#crosshair{position:absolute;left:50%;top:50%;width:5px;height:5px;background:#fff9;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 3px #15231d;display:none}
+#toast{position:absolute;left:50%;top:26%;transform:translate(-50%,-10px);opacity:0;background:#17231bf2;padding:10px 16px;font-size:13px;border-left:3px solid var(--orange);transition:.25s;white-space:nowrap}#toast.show{opacity:1;transform:translate(-50%,0)}
+#intro{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(90deg,#14221bd9,#14221b66 60%,#14221b11),linear-gradient(0deg,#10191280,transparent 58%);pointer-events:auto}.introbox{width:min(530px,calc(100% - 40px));margin-left: min(45vw,580px);padding:30px 34px 32px;background:#17231bee;border:1px solid #ffffff28;box-shadow:0 24px 80px #10181266;backdrop-filter:blur(12px)}.kicker{font:11px 'DM Mono';color:#e98952;letter-spacing:2px}.introbox h1{font:600 clamp(48px,8vw,82px)/.93 Oswald,sans-serif;letter-spacing:1px;margin:13px 0 15px}.introbox h1 em{font-style:normal;color:#e98952}.introbox p{font-size:14px;line-height:1.65;color:#d6d5c9;max-width:420px}.instructions{display:flex;gap:9px;flex-wrap:wrap;margin:20px 0 24px}.instructions span{border:1px solid #ffffff2a;color:#c9cabb;padding:7px 9px;font:10px 'DM Mono'}.instructions b{color:#f5ca7a;font-weight:500}.startbtn{border:0;background:#e9793d;color:#18221b;font:600 14px 'DM Sans';letter-spacing:.6px;padding:13px 21px;cursor:pointer;transition:.18s}.startbtn:hover{background:#ff985b;transform:translateY(-2px)}.tiny{font:10px 'DM Mono';color:#b4b8aa;margin-left:12px}
+#mobile{display:none;position:absolute;inset:auto 0 16px;justify-content:space-between;align-items:flex-end;padding:0 18px;pointer-events:none}.mobilecluster{display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(2,46px);gap:4px;pointer-events:auto}.mbtn{border:1px solid #ffffff55;background:#17231b99;color:#fff;font:18px 'DM Mono';border-radius:8px;touch-action:none;user-select:none}.mbtn:active,.mbtn.on{background:#e9793ddd;color:#17231b}.mobileactions{display:flex;gap:8px;pointer-events:auto}.mobileactions button{height:48px;min-width:55px;padding:0 12px;font:11px 'DM Mono'}#help{position:absolute;right:22px;bottom:18px;font:10px 'DM Mono';color:#f5edda;text-shadow:0 1px 5px #15251b}.reticlelabel{display:none}
+@media(max-width:700px){.topbar{top:12px;left:12px;right:12px}.brand{font-size:16px}.objective{top:58px;left:12px;padding:10px 12px}.status{min-width:120px;padding:8px 9px;font-size:10px}.introbox{margin:0;padding:25px 22px}.introbox h1{font-size:58px}.introbox p{font-size:13px}.tiny{display:block;margin:10px 0 0}#mobile{display:flex}#help{display:none}#prompt{bottom:25%}}
+</style>
+</head>
+<body><div id="game"><div id="hud">
+<div class="topbar"><div class="brand">SUMMER SHIFT<small>COUNTRYSIDE MOTOR CLUB · 1987</small></div><div class="status"><div class="statrow"><span id="modeLabel">ON FOOT</span><span id="speed">0 km/h</span></div><div class="fuelbar"><i id="fuelFill"></i></div><div class="statrow"><span>FUEL</span><span id="fuelText">100%</span></div></div></div>
+<div class="objective"><div class="eyebrow">TODAY'S LITTLE PROJECT</div><div class="objtitle" id="objectiveTitle">Get the old Lintukoto running</div><div class="objsub" id="objectiveSub">Find the parts scattered around the garage and get your summer started.</div></div>
+<div id="crosshair"></div><div id="prompt"></div><div id="toast"></div><div id="help">WASD MOVE / DRIVE &nbsp;·&nbsp; MOUSE LOOK &nbsp;·&nbsp; E INTERACT &nbsp;·&nbsp; ESC RELEASE MOUSE</div>
+<div id="mobile"><div class="mobilecluster"><span></span><button class="mbtn" data-key="w">▲</button><span></span><button class="mbtn" data-key="a">◀</button><button class="mbtn" data-key="s">▼</button><button class="mbtn" data-key="d">▶</button></div><div class="mobileactions"><button class="mbtn" id="interactBtn">USE</button><button class="mbtn" id="brakeBtn">BRAKE</button></div></div>
+</div>
+<div id="intro"><div class="introbox"><div class="kicker">A TINY SUMMER ADVENTURE</div><h1>SUMMER<br><em>SHIFT.</em></h1><p>Your uncle left you a dusty little car, a garage full of bits, and a long Finnish summer afternoon. Put the Lintukoto back together, then take the long way to the lakeside shop.</p><div class="instructions"><span><b>W A S D</b> WALK / DRIVE</span><span><b>MOUSE</b> LOOK</span><span><b>E</b> PICK UP / ENTER</span></div><button class="startbtn" id="start">START YOUR SUMMER&nbsp; →</button><span class="tiny">NO RUSH. THE SAUNA CAN WAIT.</span></div></div>
+</div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js';
+const $=s=>document.querySelector(s), scene=new THREE.Scene();
+scene.background=new THREE.Color(0x9fc9c9);scene.fog=new THREE.Fog(0x9fc9c9,45,230);
+const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.1,500);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;$('#game').prepend(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xe4f6ed,0x697552,2));const sun=new THREE.DirectionalLight(0xffe6b7,3.2);sun.position.set(-35,55,-25);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-60;sun.shadow.camera.right=60;sun.shadow.camera.top=60;sun.shadow.camera.bottom=-60;scene.add(sun);
+const mat=(color,rough=.8,metal=0)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal});
+const mats={grass:mat(0x718a4f),road:mat(0x514f43),stripe:mat(0xe6d6a5),wood:mat(0x8c6441),wall:mat(0xd2c29a),roof:mat(0x665d4c),red:mat(0xb24e32,.48),darkred:mat(0x743728,.6),rubber:mat(0x242522),hub:mat(0xc9c3aa,.35,.55),glass:new THREE.MeshStandardMaterial({color:0x9dbab3,roughness:.22,metalness:.15,transparent:true,opacity:.58}),black:mat(0x20231f),metal:mat(0x90938a,.36,.72),yellow:mat(0xe3bd63),white:mat(0xf1dfae),green:mat(0x4e5e3a),skin:mat(0xd3a47d)};
+function box(parent,name,pos,size,material,cast=true){const m=new THREE.Mesh(new THREE.BoxGeometry(...size),material);m.name=name;m.position.set(...pos);m.castShadow=cast;m.receiveShadow=true;parent.add(m);return m}
+function cylinder(parent,pos,r1,r2,h,material,rot=[0,0,0],segments=12){const m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,segments),material);m.position.set(...pos);m.rotation.set(...rot);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m}
+// broad countryside ground and the long, forgiving lane
+box(scene,'meadow',[0,-.32,-240],[260,.45,520],mats.grass,false);box(scene,'road',[0,-.06,-255],[7,.16,486],mats.road,false);
+for(let z=-16;z>-500;z-=16){box(scene,'center dash',[0,.03,z],[.12,.025,7],mats.stripe,false)}
+for(const x of [-3.35,3.35])box(scene,'road edge',[x,.025,-255],[.10,.025,486],mats.stripe,false);
+// Handmade-looking pines and leafy roadside trees, repeated along the road
+const treeMats=[mat(0x43583c),mat(0x596a43),mat(0x65734a)];
+function pine(x,z,s=1){const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(s);cylinder(g,[0,1.25,0],.18,.25,2.5,mats.wood,[0,0,0],7);for(let i=0;i<4;i++){const c=new THREE.Mesh(new THREE.ConeGeometry(1.05-i*.13,2.0,7),treeMats[(i+Math.abs(Math.floor(x)))%3]);c.position.y=2+i*.68;c.castShadow=true;g.add(c)}scene.add(g)}
+for(let z=-8;z>-490;z-=11){for(const side of [-1,1]){const spread=11+((Math.abs(z*7+side*13)%23));pine(side*spread,z-(Math.abs(z*3)%8),.75+(Math.abs(z*17)%65)/100)}}
+// Garage shell: warm, cluttered home base
+const garage=new THREE.Group();scene.add(garage);garage.position.set(0,0,0);
+box(garage,'garage floor',[0,-.12,0],[16,.24,22],mat(0x766c57),false);
+box(garage,'back wall',[0,2.5,10],[16,5,.35],mats.wall);box(garage,'left wall',[-8,2.5,0],[.35,5,20],mats.wall);box(garage,'right wall',[8,2.5,0],[.35,5,20],mats.wall);
+box(garage,'front left',[-6.7,2.5,-10],[2.6,5,.35],mats.wall);box(garage,'front right',[6.7,2.5,-10],[2.6,5,.35],mats.wall);box(garage,'header',[0,4.55,-10],[10.8,.9,.45],mats.wall);
+box(garage,'roof',[0,5.1,0],[16.4,.35,20.5],mats.roof);for(let x=-7.5;x<=7.5;x+=1.5)box(garage,'roof beam',[x,4.83,0],[.11,.22,20],mats.wood);
+for(let x=-6.5;x<=6.5;x+=1.3)box(garage,'floor plank',[x,.005,0],[.035,.015,20],mat(0x8f8065),false);
+// workbench, shelves, warm hanging lamp
+box(garage,'bench top',[5.8,1.65,1.5],[3.3,.16,1.1],mats.wood);for(const x of [4.4,7.15])box(garage,'bench leg',[x,.8,1.5],[.13,1.6,.15],mats.wood);
+box(garage,'shelf',[6.1,2.7,5.8],[3,.12,.8],mats.wood);box(garage,'shelf',[6.1,3.55,5.8],[3,.12,.8],mats.wood);
+for(let i=0;i<6;i++)box(garage,'shelf item',[4.9+i*.43,2.95,5.8],[.27,.35,.35],[mats.yellow,mats.red,mats.green,mats.metal][i%4]);
+const lamp=cylinder(garage,[0,4.4,1],.38,.22,.35,mats.yellow,[Math.PI/2,0,0]);const point=new THREE.PointLight(0xffc46e,12,16,2);point.position.set(0,4,0);garage.add(point);
+// The little red coupe: all geometry is deliberately visible and lovingly low-fi.
+const car=new THREE.Group();car.position.set(0,0,-2.1);scene.add(car);
+box(car,'lower body',[0,.66,0],[2.05,.48,4.0],mats.darkred);box(car,'hood',[0,.91,-1.23],[1.9,.18,1.42],mats.red);box(car,'trunk',[0,.91,1.45],[1.8,.22,.95],mats.red);
+box(car,'cabin',[0,1.48,.15],[1.63,.88,1.92],mats.red);box(car,'roof',[0,1.98,.2],[1.55,.18,1.1],mats.darkred);
+const windshield=box(car,'windshield',[0,1.53,-.42],[1.48,.64,.055],mats.glass);windshield.rotation.x=-.24;
+const rearGlass=box(car,'rear glass',[0,1.53,.91],[1.4,.58,.055],mats.glass);rearGlass.rotation.x=.25;
+for(const side of [-1,1]){box(car,'side window',[side*.824,1.53,.22],[.035,.52,1.12],mats.glass);box(car,'door',[side*1.025,.8,.25],[.045,.38,1.15],mats.red);box(car,'door handle',[side*1.06,1,.05],[.04,.05,.22],mats.metal);}
+box(car,'front bumper',[0,.48,-2.08],[2.15,.17,.18],mats.metal);box(car,'rear bumper',[0,.48,2.03],[2.15,.16,.18],mats.metal);box(car,'grille',[0,.69,-2.04],[.58,.22,.035],mats.black);
+for(const x of [-.72,.72]){box(car,'headlight',[x,.87,-2.02],[.43,.2,.08],mats.white);box(car,'tail light',[x,.83,1.96],[.32,.22,.06],mats.red)}
+const wheels=[];for(const x of [-1.03,1.03])for(const z of [-1.25,1.3]){const wg=new THREE.Group();wg.position.set(x,.44,z);const tire=cylinder(wg,[0,0,0],.42,.42,.3,mats.rubber,[0,0,Math.PI/2],16);const hub=cylinder(wg,[x<0?-.16:.16,0,0],.24,.24,.05,mats.hub,[0,0,Math.PI/2],12);car.add(wg);wheels.push(wg)}
+const engineVisual=new THREE.Group();engineVisual.position.set(0,1.05,-1.15);car.add(engineVisual);box(engineVisual,'engine block',[0,0,0],[.85,.42,.7],mats.metal);for(let i=0;i<4;i++)box(engineVisual,'engine rib',[-.27+i*.18,.24,0],[.07,.08,.54],mats.black);
+const batteryVisual=new THREE.Group();batteryVisual.position.set(.66,1.02,-.9);car.add(batteryVisual);box(batteryVisual,'battery',[0,0,0],[.38,.42,.3],mats.black);for(const x of [-.1,.1])cylinder(batteryVisual,[x,.24,0],.035,.035,.06,mats.metal);
+const spareVisual=new THREE.Group();spareVisual.position.set(0,.52,1.55);car.add(spareVisual);cylinder(spareVisual,[0,.02,0],.35,.35,.19,mats.rubber,[Math.PI/2,0,0],16);
+engineVisual.visible=false;batteryVisual.visible=false;spareVisual.visible=false;for(const w of wheels)w.visible=false;
+// Four parts waiting around the garage, each with a little silhouette to find.
+const parts=[];
+function part(type,label,x,z){const g=new THREE.Group();g.position.set(x,.12,z);g.userData={type,label};garage.add(g);
+ if(type==='engine'){box(g,'engine crate',[0,.2,0],[1,.55,.72],mats.metal);for(let i=0;i<4;i++)box(g,'fins',[-.3+i*.2,.5,0],[.08,.12,.58],mats.black);cylinder(g,[.5,.15,0],.14,.14,.12,mats.hub,[0,0,Math.PI/2]);}
+ if(type==='wheels'){for(const dx of [-.26,.26]){const t=cylinder(g,[dx,.44,0],.42,.42,.22,mats.rubber,[0,0,Math.PI/2],16);cylinder(g,[dx+Math.sign(dx)*.13,.44,0],.22,.22,.04,mats.hub,[0,0,Math.PI/2],12)}}
+ if(type==='battery'){box(g,'battery',[0,.32,0],[.52,.62,.4],mats.black);box(g,'battery label',[0,.34,-.21],[.3,.25,.015],mats.yellow);for(const dx of [-.14,.14])cylinder(g,[dx,.65,0],.05,.05,.08,mats.metal)}
+ if(type==='fuel'){cylinder(g,[0,.33,0],.3,.3,.62,mats.red,[Math.PI/2,0,0],12);box(g,'can handle',[0,.68,0],[.28,.08,.24],mats.metal);cylinder(g,[.2,.65,-.04],.07,.07,.07,mats.black)}
+ parts.push(g);return g}
+part('engine','ENGINE BLOCK',4.6,2.6);part('wheels','SET OF FOUR WHEELS',-4.9,1.7);part('battery','BATTERY',5.7,5);part('fuel','FUEL CAN',-5.3,5.4);
+// A tiny destination peeking through the trees: the lakeside summer shop.
+box(scene,'shop',[10,1.7,-408],[7,3.4,6],mat(0xe5d6b3));box(scene,'shop roof',[10,3.55,-408],[7.8,.35,6.8],mat(0xb24e32));box(scene,'shop door',[10,1,-404.94],[1.2,2,.08],mats.wood);box(scene,'shop window',[8.3,2,-404.93],[1.5,1.2,.08],mats.glass);box(scene,'shop window',[11.7,2,-404.93],[1.5,1.2,.08],mats.glass);
+for(const x of [7.4,12.6]){cylinder(scene,[x,.75,-401],.28,.28,1.5,mats.red,[Math.PI/2,0,0]);box(scene,'pump head',[x,1.4,-401],[.65,.45,.28],mats.white);}
+box(scene,'shop sign post',[4,2.3,-365],[.18,4.6,.18],mats.wood);
+const signCanvas=document.createElement('canvas');signCanvas.width=512;signCanvas.height=192;const sc=signCanvas.getContext('2d');sc.fillStyle='#20372b';sc.fillRect(0,0,512,192);sc.fillStyle='#f0d7a2';sc.font='bold 54px sans-serif';sc.fillText('KESÄKAUPPA',25,78);sc.font='30px monospace';sc.fillText('LAKESIDE  ·  400 m',27,137);const signTex=new THREE.CanvasTexture(signCanvas);const sign=new THREE.Mesh(new THREE.PlaneGeometry(3.6,1.35),new THREE.MeshBasicMaterial({map:signTex}));sign.position.set(4,3.3,-365);scene.add(sign);
+// First-person explorer and driving state
+const player={x:0,z:7,yaw:0,pitch:-.03};let mode='walk',started=false,fuel=100,distance=0,toastTimer=0,won=false;
+const flags={engine:false,wheels:false,battery:false,fuel:false};const keys={};
+function say(text){$('#toast').textContent=text;$('#toast').classList.add('show');toastTimer=2.2}
+function completed(){return Object.values(flags).every(Boolean)}
+function refreshObjective(){const n=Object.values(flags).filter(Boolean).length;if(!completed()){$('#objectiveTitle').textContent=`Get the old Lintukoto running  ·  ${n}/4`;
+ const next=['engine','wheels','battery','fuel'].filter(k=>!flags[k]).map(k=>({engine:'engine block',wheels:'four wheels',battery:'battery',fuel:'a little fuel'}[k]));$('#objectiveSub').textContent=`Find ${next.join(', ').replace(/, ([^,]*)$/, ' and $1')} around the garage, then hop in.`;}
+ else{$('#objectiveTitle').textContent=won?'You made it to the lake!':'Take the long way';$('#objectiveSub').textContent=won?'A perfect little summer drive. Your uncle would be proud.':'Drive down the forest road to the lakeside shop. It is about 400 metres away.'}}
+function nearest(){if(mode==='drive')return{kind:'car',distance:0};let best=null,bd=Infinity;for(const p of parts){if(flags[p.userData.type])continue;const d=Math.hypot(player.x-p.position.x,player.z-p.position.z);if(d<bd){bd=d;best={kind:'part',obj:p,distance:d}}}const dc=Math.hypot(player.x-car.position.x,player.z-car.position.z);if(dc<bd){best={kind:'car',distance:dc};bd=dc}return best}
+function interact(){if(mode==='drive'){mode='walk';player.x=car.position.x+2.2;player.z=car.position.z+.4;say('Back on your own two feet.');return}
+ const n=nearest();if(!n||n.distance>3.1){say('Nothing close enough to fiddle with.');return}
+ if(n.kind==='part'){const type=n.obj.userData.type;flags[type]=true;n.obj.visible=false;if(type==='engine')engineVisual.visible=true;if(type==='wheels'){spareVisual.visible=true;for(const w of wheels)w.visible=true}if(type==='battery')batteryVisual.visible=true;if(type==='fuel'){fuel=Math.min(100,fuel+55);$('#fuelText').textContent=Math.round(fuel)+'%'}say(({engine:'Engine bolted in. Sounds like a Saturday job.',wheels:'Four round things: an underrated upgrade.',battery:'Battery connected. The radio might live again.',fuel:'Fresh fuel. Try not to spill it on your shoes.'})[type]);refreshObjective();return}
+ if(!completed()){say('Not quite ready. Find the missing parts first.');return}mode='drive';car.position.set(player.x,0,player.z);car.rotation.y=player.yaw;player.x=car.position.x;player.z=car.position.z;say('You are in. W accelerates, S brakes / reverses.');}
+function updatePrompt(){const el=$('#prompt');if(!started){el.style.display='none';return}const n=nearest();if(mode==='drive'){el.innerHTML='<kbd>E</kbd> GET OUT';el.style.display='block';return}if(n&&n.distance<3.1){el.innerHTML=n.kind==='part'?`<kbd>E</kbd> PICK UP ${n.obj.userData.label}`:`<kbd>E</kbd> ${completed()?'GET IN':'CAR · NEED ALL FOUR PARTS'}`;el.style.display='block'}else el.style.display='none'}
+function onKey(e,down){const k=e.key.toLowerCase();keys[k]=down;if(['w','a','s','d',' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();if(down&&!e.repeat&&k==='e'&&started)interact();if(down&&!e.repeat&&k==='escape'&&document.pointerLockElement)document.exitPointerLock()}
+addEventListener('keydown',e=>onKey(e,true));addEventListener('keyup',e=>onKey(e,false));
+$('#start').addEventListener('click',()=>{started=true;$('#intro').style.display='none';$('#hud').style.display='block';$('#crosshair').style.display='block';refreshObjective();renderer.domElement.requestPointerLock?.()});
+renderer.domElement.addEventListener('click',()=>{if(started&&mode==='walk'&&innerWidth>700&&!document.pointerLockElement)renderer.domElement.requestPointerLock?.()});
+document.addEventListener('mousemove',e=>{if(document.pointerLockElement===renderer.domElement&&mode==='walk'){player.yaw-=e.movementX*.0022;player.pitch=Math.max(-.72,Math.min(.6,player.pitch-e.movementY*.0018))}});
+let touchX=0,touchY=0;renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'){touchX=e.clientX;touchY=e.clientY}});renderer.domElement.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse'&&e.buttons&&mode==='walk'){player.yaw-=(e.clientX-touchX)*.006;player.pitch=Math.max(-.6,Math.min(.5,player.pitch-(e.clientY-touchY)*.004));touchX=e.clientX;touchY=e.clientY}});
+for(const b of document.querySelectorAll('[data-key]')){const k=b.dataset.key;b.addEventListener('pointerdown',e=>{e.preventDefault();keys[k]=true;b.classList.add('on');b.setPointerCapture(e.pointerId)});for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,()=>{keys[k]=false;b.classList.remove('on')})}
+$('#interactBtn').addEventListener('pointerdown',e=>{e.preventDefault();interact()});$('#brakeBtn').addEventListener('pointerdown',e=>{e.preventDefault();keys.s=true});for(const ev of ['pointerup','pointercancel','lostpointercapture'])$('#brakeBtn').addEventListener(ev,()=>keys.s=false);
+addEventListener('blur',()=>{for(const k in keys)keys[k]=false});
+function approach(value,target,amount){return value<target?Math.min(value+amount,target):Math.max(value-amount,target)}
+let speed=0,last=performance.now();
+function animate(now){requestAnimationFrame(animate);const dt=Math.min(.04,(now-last)/1000);last=now;
+ if(started){
+  if(mode==='walk'){
+   const forward=Number(!!keys.w||!!keys.arrowup)-Number(!!keys.s||!!keys.arrowdown),side=Number(!!keys.a||!!keys.arrowleft)-Number(!!keys.d||!!keys.arrowright);let vx=-Math.sin(player.yaw)*forward-Math.cos(player.yaw)*side,vz=-Math.cos(player.yaw)*forward+Math.sin(player.yaw)*side;const l=Math.hypot(vx,vz)||1;player.x+=vx/l*3.35*dt;player.z+=vz/l*3.35*dt;
+   camera.position.set(player.x,1.67,player.z);camera.rotation.order='YXZ';camera.rotation.set(player.pitch,player.yaw,0);
+   $('#modeLabel').textContent='ON FOOT';$('#speed').textContent='0 km/h';
+  }else{
+   const throttle=Number(!!keys.w||!!keys.arrowup)-Number(!!keys.s||!!keys.arrowdown),steer=Number(!!keys.a||!!keys.arrowleft)-Number(!!keys.d||!!keys.arrowright);
+   const offroad=Math.abs(car.position.x)>2.8?0.42:1;const target=throttle>0?20*offroad:throttle<0?-5:0;speed=approach(speed,target,(throttle===0?4.5:throttle>0?5.5:11)*dt);
+   car.rotation.y+=steer*dt*(.35+Math.min(Math.abs(speed),18)*.038)*(speed<-.1?-1:1);
+   const dx=-Math.sin(car.rotation.y)*speed*dt,dz=-Math.cos(car.rotation.y)*speed*dt;car.position.x+=dx;car.position.z+=dz;distance+=Math.abs(speed*dt);for(const w of wheels)w.rotation.x+=speed*dt*2.7;
+   fuel=Math.max(0,fuel-Math.abs(speed)*dt*.014);if(fuel===0)speed=approach(speed,0,2*dt);
+   $('#modeLabel').textContent='BEHIND THE WHEEL';$('#speed').textContent=`${Math.round(Math.abs(speed)*3.6)} km/h`;$('#fuelText').textContent=`${Math.round(fuel)}%`;$('#fuelFill').style.width=fuel+'%';$('#fuelFill').style.background=fuel<20?'#df6944':'#a6c45d';
+   const fx=-Math.sin(car.rotation.y),fz=-Math.cos(car.rotation.y);const targetCam=new THREE.Vector3(car.position.x-fx*6,3.15,car.position.z-fz*6);camera.position.lerp(targetCam,1-Math.exp(-4.2*dt));camera.lookAt(car.position.x+fx*2,1.05,car.position.z+fz*2);
+   if(!won&&distance>=400){won=true;refreshObjective();say('You made it! Park by the shop and enjoy the lake.');}
+   if(speed===0&&fuel===0&&throttle>0&&Math.random()<.002)say('Out of fuel. Good thing the shop is just ahead…');
+  }
+  updatePrompt();if(toastTimer>0){toastTimer-=dt;if(toastTimer<=0)$('#toast').classList.remove('show')}
+ }
+ renderer.render(scene,camera);
+}
+camera.position.set(0,2,7);camera.rotation.order='YXZ';camera.rotation.set(-.04,0,0);
+requestAnimationFrame(animate);
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.8))});
+</script></body></html>
